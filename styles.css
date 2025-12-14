@@ -1,0 +1,99 @@
+/* 全局样式 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #87CEEB; /* 设置背景为天蓝色 */
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    overflow-y: scroll; /* 允许垂直滚动 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 和 Edge */
+}
+
+/* 针对 Webkit 浏览器 (Chrome, Safari, Opera) */
+body::-webkit-scrollbar {
+    display: none; /* 隐藏滚动条 */
+}
+
+h1, h2 {
+    text-align: center;
+    margin: 3px 0;
+}
+
+h1{
+    text-decoration: none;
+    font-size: 24px;
+}
+h1 a {
+    color: red;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+h1 a:hover {
+    color: darkred;
+}
+
+h2 a {
+    color: #007BFF;
+    font-size: 15px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+h2 a:hover {
+    color: #0056b3;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.strategy {
+    background-color: #e9ecef;
+    border-left: 4px solid #007BFF;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+/* 数字时钟样式 */
+.digital-clock {
+    text-align: center;
+    margin: 20px 0;
+    color: black;
+}
+
+.time {
+    font-size: 2em;
+    margin: 10px 0;
+}
+
+.calender {
+    font-size: 1em;
+}
+
+.dot-menu {
+    display: none; /* 默认隐藏菜单 */
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 10;
+}
+
+.dot-menu.active {
+    display: block; /* 激活时显示菜单 */
+}
+
+.menu-item {
+    cursor: pointer;
+    color: #fff;
+    padding: 5px 10px;
+}
