@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epic免费游戏收集 | 喜加一汇总</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标 -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#11998e',
+            secondary: '#38ef7d',
+            accent: '#e74c3c',
+            dark: '#2c3e50',
+            light: '#f5f7fa'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+      }
+      .btn-primary {
+        @apply bg-primary text-white px-4 py-2 rounded-lg shadow-md hover:bg-primary/90 transition-all;
+      }
+      .btn-refresh {
+        @apply bg-dark text-white px-3 py-1 rounded-lg shadow-md hover:bg-dark/90 transition-all flex items-center gap-2;
+      }
+      .card-gradient {
+        @apply bg-gradient-to-br from-white to-light;
+      }
+    }
+  </style>
+  <style>
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #aaa;
+    }
+    /* 加载动画 */
+    .loader {
+      border-top-color: #11998e;
+      animation: spinner 0.8s linear infinite;
+    }
+    @keyframes spinner {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* 图片加载过渡 */
+    .game-image {
+      transition: opacity 0.5s ease;
+    }
+    .game-image.loading {
+      opacity: 0;
+    }
+    .game-image.loaded {
+      opacity: 1;
+    }
+    /* 重试按钮样式 */
+    .retry-btn {
+      @apply bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-all mt-4;
+    }
+    /* 公众号引流区样式 */
+    .wechat-qrcode {
+      transition: all 0.3s ease;
+    }
+    .wechat-qrcode:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+  <!-- 导航栏 -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fa fa-gamepad text-2xl text-primary"></i>
+        <h1 class="text-xl md:text-2xl font-bold">Epic免费游戏收集</h1>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+        <div class="relative w-full md:w-64">
+          <input 
+            type="text" 
+            id="search-input"
+            placeholder="搜索游戏名称..." 
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+          >
+          <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+        
+        <button id="refresh-btn" class="btn-refresh">
+          <i class="fa fa-refresh"></i>
+          <span>刷新</span>
+        </button>
+        
+        <span id="last-update" class="text-sm text-gray-500">
+          最后更新: 加载中...
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-6">
+    <!-- 状态提示区 -->
+    <div id="status-alert" class="mb-6 p-4 rounded-lg hidden"></div>
+    
+    <!-- 加载动画 -->
+    <div id="loading" class="flex justify-center items-center py-20">
+      <div class="loader h-12 w-12 rounded-full border-4 border-gray-200"></div>
+    </div>
+    
+    <!-- 游戏列表 -->
+    <div id="games-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
+      <!-- 游戏卡片将通过JS动态生成 -->
+    </div>
+    
+    <!-- 空状态 -->
+    <div id="empty-state" class="flex flex-col items-center justify-center py-20 hidden">
+      <div class="bg-gray-100 p-6 rounded-full mb-4">
+        <i class="fa fa-inbox text-4xl text-gray-400"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">暂无免费游戏</h3>
+      <p class="text-gray-500 text-center max-w-md">
+        目前没有可领取的免费游戏，或没有找到符合搜索条件的游戏。<br>
+        请稍后再试或尝试其他搜索关键词。
+      </p>
+    </div>
+    
+    <!-- 错误状态 -->
+    <div id="error-state" class="flex flex-col items-center justify-center py-20 hidden">
+      <div class="bg-red-100 p-6 rounded-full mb-4">
+        <i class="fa fa-exclamation-circle text-4xl text-accent"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">数据获取失败</h3>
+      <p class="text-gray-500 text-center max-w-md mb-4">
+        无法连接到Epic游戏服务器，请检查网络连接或稍后重试。<br>
+        可能是跨域限制或API暂时不可用。
+      </p>
+      <button id="retry-btn" class="retry-btn">
+        <i class="fa fa-refresh mr-1"></i> 重试连接
+      </button>
+      <p class="text-xs text-gray-400 mt-4">
+        已自动尝试3个不同的代理地址，均失败
+      </p>
+    </div>
+  </main>
+
+  <!-- 公众号引流区 -->
+  <section class="bg-gradient-to-r from-primary to-primary/80 text-white py-8 my-6">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-8">
+      <!-- 左侧文字说明 -->
+      <div class="text-center md:text-left max-w-md">
+        <div class="flex items-center justify-center md:justify-start gap-3 mb-3">
+          <i class="fa fa-weixin text-3xl"></i>
+          <h3 class="text-2xl font-bold">关注「Friday 工具箱」</h3>
+        </div>
+        <p class="text-white/90 mb-4 text-lg">每天一个实用小技巧</p>
+        <ul class="text-left space-y-2 text-white/80">
+          <li class="flex items-start gap-2">
+            <i class="fa fa-check-circle mt-1"></i>
+            <span>每日Epic喜加一提醒</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa fa-check-circle mt-1"></i>
+            <span>实用工具推荐与教程</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa fa-check-circle mt-1"></i>
+            <span>更多免费资源分享</span>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- 右侧二维码（请替换下面的base64内容） -->
+      <div class="wechat-qrcode bg-white p-3 rounded-lg shadow-lg">
+        <!-- 👇👇 替换说明：
+        1. 请将下面的 "DATA:image/png;base64,你的二维码base64编码" 替换为实际的二维码base64
+        2. 转换方法：
+           - 在线转换工具：https://tool.chinaz.com/tools/imgtobase/
+           - 步骤：上传公众号二维码图片 → 选择base64编码 → 复制生成的完整base64字符串
+           - 替换下面 src 引号内的所有内容（包括 "data:image/png;base64," 前缀）
+        -->
+        <img src="data:image/jpeg;base64,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" 
+             alt="Friday工具箱公众号二维码" 
+             class="w-48 h-48 object-contain"
+             onerror="this.src='https://via.placeholder.com/192x192?text=二维码加载失败'">
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+      <p class="mb-2">数据来源于 Epic Games Store 公开API</p>
+      <p class="text-sm text-gray-400">
+        自动更新周期: 30分钟 | 游戏领取请在截止时间前完成
+      </p>
+      <div class="mt-4 flex justify-center gap-4">
+        <a href="https://store.epicgames.com/free-games" target="_blank" class="text-gray-300 hover:text-white transition-colors">
+          <i class="fa fa-external-link mr-1"></i> 前往Epic官网
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 游戏卡片模板（不显示，仅作为JS克隆用） -->
+  <template id="game-card-template">
+    <div class="game-card bg-white rounded-xl shadow-md overflow-hidden card-hover card-gradient">
+      <!-- 游戏封面图 -->
+      <div class="relative h-48 overflow-hidden">
+        <img class="game-image w-full h-full object-cover loading" alt="游戏封面">
+        <div class="absolute top-2 right-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded">
+          免费领取
+        </div>
+      </div>
+      
+      <!-- 游戏信息 -->
+      <div class="p-4">
+        <h3 class="game-title font-bold text-lg mb-2 line-clamp-1"></h3>
+        
+        <div class="flex items-center text-accent text-sm mb-3">
+          <i class="fa fa-clock-o mr-1"></i>
+          <span class="game-end-date"></span>
+        </div>
+        
+        <p class="game-description text-gray-600 text-sm mb-4 line-clamp-3"></p>
+        
+        <a href="#" class="game-link btn-primary w-full inline-block text-center" target="_blank" rel="noopener noreferrer">
+          <i class="fa fa-gift mr-1"></i> 立即领取
+        </a>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    // 全局变量
+    const EPIC_API_URL = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=zh";
+    // 多个CORS代理地址（备用）
+    const CORS_PROXIES = [
+      "https://cors-anywhere.herokuapp.com/",
+      "https://api.allorigins.win/get?url=",
+      "https://proxy.cors.sh/"
+    ];
+    const CACHE_KEY = "epic_free_games";
+    const CACHE_EXPIRE_MINUTES = 30; // 缓存过期时间（分钟）
+    let gamesData = []; // 存储游戏数据
+    let currentProxyIndex = 0; // 当前使用的代理索引
+
+    // DOM元素
+    const loadingEl = document.getElementById('loading');
+    const gamesContainerEl = document.getElementById('games-container');
+    const emptyStateEl = document.getElementById('empty-state');
+    const errorStateEl = document.getElementById('error-state');
+    const refreshBtnEl = document.getElementById('refresh-btn');
+    const searchInputEl = document.getElementById('search-input');
+    const lastUpdateEl = document.getElementById('last-update');
+    const statusAlertEl = document.getElementById('status-alert');
+    const gameCardTemplate = document.getElementById('game-card-template');
+    const retryBtnEl = document.getElementById('retry-btn');
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 加载缓存数据
+      loadCachedGames();
+      
+      // 绑定事件
+      refreshBtnEl.addEventListener('click', refreshGames);
+      searchInputEl.addEventListener('input', filterGames);
+      retryBtnEl.addEventListener('click', retryAllProxies);
+      
+      // 自动刷新
+      setInterval(refreshGames, CACHE_EXPIRE_MINUTES * 60 * 1000);
+    });
+
+    /**
+     * 加载缓存数据
+     */
+    async function loadCachedGames() {
+      try {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { games, timestamp } = JSON.parse(cachedData);
+          const now = new Date().getTime();
+          
+          // 检查缓存是否过期
+          if (now - timestamp < CACHE_EXPIRE_MINUTES * 60 * 1000) {
+            gamesData = games;
+            renderGames(games);
+            updateLastUpdate(timestamp);
+            showSuccessAlert(`已加载缓存数据 (${games.length} 款游戏)`);
+            return;
+          }
+        }
+        
+        // 缓存过期或无缓存，获取新数据
+        await fetchGamesWithProxy();
+      } catch (error) {
+        console.error('加载缓存失败:', error);
+        await fetchGamesWithProxy();
+      }
+    }
+
+    /**
+     * 使用CORS代理获取游戏数据
+     */
+    async function fetchGamesWithProxy() {
+      showLoading();
+      let proxyIndex = currentProxyIndex;
+      let success = false;
+      
+      try {
+        // 尝试所有代理地址
+        for (let i = 0; i < CORS_PROXIES.length; i++) {
+          const proxyUrl = CORS_PROXIES[proxyIndex];
+          let apiUrl;
+          
+          // 处理不同代理的URL格式
+          if (proxyUrl.includes("allorigins")) {
+            // allorigins代理需要特殊处理
+            apiUrl = `${proxyUrl}${encodeURIComponent(EPIC_API_URL)}`;
+          } else {
+            apiUrl = `${proxyUrl}${EPIC_API_URL}`;
+          }
+          
+          console.log(`尝试使用代理 ${proxyIndex + 1}/${CORS_PROXIES.length}: ${proxyUrl}`);
+          
+          try {
+            const response = await fetch(apiUrl, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+              },
+              timeout: 15000 // 15秒超时
+            });
+            
+            if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+            
+            let data;
+            // 处理allorigins的响应格式
+            if (proxyUrl.includes("allorigins")) {
+              const result = await response.json();
+              data = JSON.parse(result.contents);
+            } else {
+              data = await response.json();
+            }
+            
+            const elements = data?.data?.Catalog?.searchStore?.elements || [];
+            
+            // 过滤和处理游戏数据
+            const freeGames = processGameData(elements);
+            gamesData = freeGames;
+            
+            // 缓存数据
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+              games: freeGames,
+              timestamp: new Date().getTime()
+            }));
+            
+            // 更新当前使用的代理索引（下次优先使用成功的代理）
+            currentProxyIndex = proxyIndex;
+            
+            renderGames(freeGames);
+            updateLastUpdate(new Date().getTime());
+            showSuccessAlert(`成功获取 ${freeGames.length} 款免费游戏 (使用代理 ${proxyIndex + 1})`);
+            success = true;
+            break; // 成功后退出循环
+          } catch (proxyError) {
+            console.error(`代理 ${proxyIndex + 1} 失败:`, proxyError);
+            // 切换到下一个代理
+            proxyIndex = (proxyIndex + 1) % CORS_PROXIES.length;
+          }
+        }
+        
+        if (!success) {
+          throw new Error("所有代理地址都无法连接");
+        }
+      } catch (error) {
+        console.error('获取游戏数据失败:', error);
+        showErrorAlert('获取游戏数据失败，请检查网络连接或稍后重试');
+        
+        // 如果有缓存数据，使用缓存
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { games, timestamp } = JSON.parse(cachedData);
+          gamesData = games;
+          renderGames(games);
+          updateLastUpdate(timestamp);
+          showWarningAlert('已加载缓存数据，可能不是最新的');
+        } else {
+          // 无缓存，显示错误状态
+          showErrorState();
+        }
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /**
+     * 重试所有代理
+     */
+    async function retryAllProxies() {
+      showLoading();
+      await fetchGamesWithProxy();
+    }
+
+    /**
+     * 处理游戏数据（过滤、格式化）
+     */
+    function processGameData(elements) {
+      const freeGames = [];
+      
+      elements.forEach(game => {
+        const promotions = game?.promotions;
+        if (!promotions || !promotions?.promotionalOffers || promotions?.promotionalOffers.length === 0) {
+          return;
+        }
+        
+        // 检查是否有免费优惠
+        let isFree = false;
+        let endDateStr = "未知";
+        
+        promotions.promotionalOffers.forEach(offerGroup => {
+          offerGroup.promotionalOffers.forEach(offer => {
+            if (offer.discountSetting.discountPercentage === 0) {
+              isFree = true;
+              
+              // 格式化截止时间
+              if (offer.endDate) {
+                try {
+                  const dtEnd = new Date(offer.endDate.split('.')[0]);
+                  endDateStr = `${dtEnd.getFullYear()}-${(dtEnd.getMonth() + 1).toString().padStart(2, '0')}-${dtEnd.getDate().toString().padStart(2, '0')} ${dtEnd.getHours().toString().padStart(2, '0')}:${dtEnd.getMinutes().toString().padStart(2, '0')} (UTC)`;
+                } catch (e) {
+                  endDateStr = offer.endDate;
+                }
+              }
+            }
+          });
+        });
+        
+        if (isFree) {
+          // 获取游戏链接
+          const slug = game.productSlug || game.urlSlug;
+          const link = slug ? `https://store.epicgames.com/p/${slug}` : "https://store.epicgames.com/free-games";
+          
+          // 获取游戏图片
+          let imageUrl = "";
+          game.keyImages?.forEach(img => {
+            if ((img.type === 'Thumbnail' || img.type === 'OfferImageWide') && !imageUrl) {
+              imageUrl = img.url;
+            }
+          });
+          
+          freeGames.push({
+            title: game.title || "未知游戏",
+            description: game.description || "暂无描述",
+            link: link,
+            image: imageUrl,
+            endDate: endDateStr,
+            originalData: game // 保留原始数据
+          });
+        }
+      });
+      
+      // 按截止时间排序（最近到期的在前）
+      return freeGames.sort((a, b) => {
+        try {
+          const dateA = new Date(a.endDate.replace(' (UTC)', ''));
+          const dateB = new Date(b.endDate.replace(' (UTC)', ''));
+          return isNaN(dateA.getTime()) ? 1 : isNaN(dateB.getTime()) ? -1 : dateA - dateB;
+        } catch (e) {
+          return 0;
+        }
+      });
+    }
+
+    /**
+     * 渲染游戏列表
+     */
+    function renderGames(games) {
+      gamesContainerEl.innerHTML = '';
+      
+      if (games.length === 0) {
+        showEmptyState();
+        return;
+      }
+      
+      games.forEach(game => {
+        const card = gameCardTemplate.content.cloneNode(true);
+        
+        // 设置卡片数据
+        const imgEl = card.querySelector('.game-image');
+        imgEl.src = game.image || 'https://via.placeholder.com/400x225?text=暂无图片';
+        imgEl.alt = game.title;
+        imgEl.onload = () => imgEl.classList.add('loaded');
+        
+        card.querySelector('.game-title').textContent = game.title;
+        card.querySelector('.game-end-date').textContent = `截止: ${game.endDate}`;
+        card.querySelector('.game-description').textContent = game.description;
+        
+        const linkEl = card.querySelector('.game-link');
+        linkEl.href = game.link;
+        linkEl.target = "_blank";
+        
+        gamesContainerEl.appendChild(card);
+      });
+      
+      gamesContainerEl.classList.remove('hidden');
+      emptyStateEl.classList.add('hidden');
+      errorStateEl.classList.add('hidden');
+    }
+
+    /**
+     * 过滤游戏（搜索功能）
+     */
+    function filterGames() {
+      const searchTerm = searchInputEl.value.trim().toLowerCase();
+      
+      if (!searchTerm) {
+        renderGames(gamesData);
+        return;
+      }
+      
+      const filteredGames = gamesData.filter(game => 
+        game.title.toLowerCase().includes(searchTerm) || 
+        game.description.toLowerCase().includes(searchTerm)
+      );
+      
+      renderGames(filteredGames);
+      
+      if (filteredGames.length === 0) {
+        showWarningAlert(`未找到包含"${searchTerm}"的游戏`);
+      } else {
+        hideAlert();
+      }
+    }
+
+    /**
+     * 刷新游戏数据
+     */
+    async function refreshGames() {
+      refreshBtnEl.disabled = true;
+      refreshBtnEl.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>刷新中...</span>';
+      
+      try {
+        await fetchGamesWithProxy();
+      } finally {
+        refreshBtnEl.disabled = false;
+        refreshBtnEl.innerHTML = '<i class="fa fa-refresh"></i><span>刷新</span>';
+      }
+    }
+
+    /**
+     * 更新最后更新时间显示
+     */
+    function updateLastUpdate(timestamp) {
+      const date = new Date(timestamp);
+      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      lastUpdateEl.textContent = `最后更新: ${formattedDate}`;
+    }
+
+    /**
+     * 显示加载状态
+     */
+    function showLoading() {
+      loadingEl.classList.remove('hidden');
+      gamesContainerEl.classList.add('hidden');
+      emptyStateEl.classList.add('hidden');
+      errorStateEl.classList.add('hidden');
+      hideAlert();
+    }
+
+    /**
+     * 隐藏加载状态
+     */
+    function hideLoading() {
+      loadingEl.classList.add('hidden');
+    }
+
+    /**
+     * 显示空状态
+     */
+    function showEmptyState() {
+      emptyStateEl.classList.remove('hidden');
+      gamesContainerEl.classList.add('hidden');
+      errorStateEl.classList.add('hidden');
+    }
+
+    /**
+     * 显示错误状态
+     */
+    function showErrorState() {
+      errorStateEl.classList.remove('hidden');
+      gamesContainerEl.classList.add('hidden');
+      emptyStateEl.classList.add('hidden');
+    }
+
+    /**
+     * 显示成功提示
+     */
+    function showSuccessAlert(message) {
+      statusAlertEl.className = 'mb-6 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200';
+      statusAlertEl.innerHTML = `<i class="fa fa-check-circle mr-2"></i> ${message}`;
+      statusAlertEl.classList.remove('hidden');
+      setTimeout(hideAlert, 5000);
+    }
+
+    /**
+     * 显示错误提示
+     */
+    function showErrorAlert(message) {
+      statusAlertEl.className = 'mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200';
+      statusAlertEl.innerHTML = `<i class="fa fa-exclamation-circle mr-2"></i> ${message}`;
+      statusAlertEl.classList.remove('hidden');
+    }
+
+    /**
+     * 显示警告提示
+     */
+    function showWarningAlert(message) {
+      statusAlertEl.className = 'mb-6 p-4 rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200';
+      statusAlertEl.innerHTML = `<i class="fa fa-exclamation-triangle mr-2"></i> ${message}`;
+      statusAlertEl.classList.remove('hidden');
+    }
+
+    /**
+     * 隐藏提示
+     */
+    function hideAlert() {
+      statusAlertEl.classList.add('hidden');
+    }
+
+    /**
+     * 处理图片加载失败
+     */
+    document.addEventListener('error', (e) => {
+      if (e.target.tagName === 'IMG' && e.target.classList.contains('game-image')) {
+        e.target.src = 'https://via.placeholder.com/400x225?text=图片加载失败';
+        e.target.classList.add('loaded');
+      }
+    }, true);
+
+    /**
+     * 处理代理可能需要的预请求
+     */
+    async function preflightProxy() {
+      try {
+        // 预请求cors-anywhere以获取临时访问权限
+        await fetch('https://cors-anywhere.herokuapp.com/corsdemo', {
+          method: 'GET',
+          timeout: 5000
+        });
+        console.log('CORS代理预请求完成');
+      } catch (e) {
+        console.log('CORS代理预请求失败，将尝试其他代理:', e);
+      }
+    }
+
+    // 页面加载时预请求代理
+    preflightProxy();
+  </script>
+</body>
+</html>
