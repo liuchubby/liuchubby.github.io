@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="application-name" content="企微打卡">
+<meta name="apple-mobile-web-app-title" content="企微打卡">
+<meta name="description" content="一键跳转到企业微信打卡页面的快捷入口">
+<title>企微打卡 · 快捷入口</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#1f2329;--muted:#646a73;--line:#e5e6eb;--brand:#2b6cf6;--brand-d:#1d55d6}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;padding:24px 16px calc(24px + env(safe-area-inset-bottom))}
+.wrap{max-width:480px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px;margin-bottom:14px}
+h1{font-size:20px;font-weight:600;margin:0 0 6px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+.env{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;background:#eef3ff;color:var(--brand);margin-bottom:16px}
+.btn{display:block;width:100%;border:0;border-radius:10px;background:var(--brand);color:#fff;font-size:16px;font-weight:500;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.btn:active{background:var(--brand-d)}
+.btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+.alt{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.alt .btn{font-size:13px;padding:10px 8px;background:#f7f8fa;color:var(--text);border:1px solid var(--line)}
+.note{background:#fff7e6;border-radius:10px;padding:12px 14px;color:#7a5b12;font-size:13px;line-height:1.7}
+.code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all;color:var(--muted);margin-top:8px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.hidden{display:none!important}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:360px;padding:24px 22px;box-shadow:0 12px 40px rgba(0,0,0,.16)}
+.modal h2{font-size:18px;font-weight:600;margin:0 0 10px}
+.modal p{font-size:14px;color:var(--muted);margin:0 0 18px}
+.modal .btn+.btn{margin-top:9px}
+.wxarrow{position:fixed;top:10px;right:20px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid #fff;transform:rotate(30deg);z-index:61}
+.wxtip{color:#fff;text-align:center;font-size:15px;line-height:1.9;padding:88px 24px 0}
+.wxtip b{display:block;font-size:19px;margin-bottom:10px}
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;font-size:13px;padding:9px 16px;border-radius:20px;z-index:80}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>企微打卡 · 快捷入口</h1>
+    <p class="sub">一键跳转到企业微信打卡页面</p>
+    <span class="env" id="env">正在识别环境…</span>
+    <button class="btn" id="mainBtn">打开打卡页</button>
+    <div class="alt" id="altBox"></div>
+  </div>
+  <div class="card">
+    <div class="note">
+      这是客户端内部路由，不是企业微信对外开放的接口，客户端升级后可能失效。若按钮无反应，请依次试下方备用入口；仍不行请从「工作台 → 打卡」进入。
+      <div class="code" id="schemeText"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="dialog">
+  <div class="modal">
+    <h2 id="dlgTitle">跳转到企微打卡页</h2>
+    <p id="dlgText"></p>
+    <button class="btn" id="dlgOk">立即跳转</button>
+    <button class="btn ghost" id="dlgCancel">稍后</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="wxMask">
+  <div class="wxarrow"></div>
+  <div class="wxtip">
+    <b>请在浏览器中打开</b>
+    微信内置浏览器会拦截跳转。<br>
+    点击右上角 ··· → 选择「在浏览器打开」<br>
+    然后在浏览器里点「打开打卡页」。
+    <div style="margin-top:22px"><button class="btn ghost" id="wxClose" style="max-width:200px;margin:0 auto">我知道了</button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="failBox">
+  <div class="modal">
+    <h2>没有跳转成功</h2>
+    <p>可能是企业微信未安装、未登录，或当前客户端版本不支持该内部路由。可以复制地址手动打开，或直接去工作台。</p>
+    <button class="btn" id="retryBtn">重试</button>
+    <button class="btn ghost" id="copyBtn">复制跳转地址</button>
+    <button class="btn ghost" id="homeBtn">打开企业微信官网</button>
+    <button class="btn ghost" id="failClose">关闭</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var MAIN = 'wxwork://jump?target=jump_to_checkin';
+  var ALTS = [
+    {label:'打卡 Tab', url:'wxwork://weworkcheckintab'},
+    {label:'考勤首页', url:'wxwork://weworkattendance'},
+    {label:'打卡规则', url:'wxwork://weworkattruletab'},
+    {label:'工作台', url:'wxwork://jump?target=workbench'}
+  ];
+  var HOME = 'https://work.weixin.qq.com/';
+  var UA = navigator.userAgent;
+  var inWork = /wxwork/i.test(UA);
+  var inWeChat = /MicroMessenger/i.test(UA) && !inWork;
+  var isAndroid = /Android|Linux/i.test(UA);
+  var isiOS = /iPhone|iPad|iPod/i.test(UA);
+  var isDesktop = !isAndroid && !isiOS;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var current = MAIN;
+
+  $('schemeText').textContent = MAIN;
+
+  var envLabel = inWork ? '当前环境：企业微信内置浏览器（推荐）'
+    : inWeChat ? '当前环境：微信内置浏览器（需先切换）'
+    : isDesktop ? '当前环境：桌面端（请在手机上使用）'
+    : '当前环境：系统浏览器';
+  $('env').textContent = envLabel;
+
+  ALTS.forEach(function(item){
+    var b = document.createElement('button');
+    b.className = 'btn';
+    b.textContent = item.label;
+    b.addEventListener('click', function(){ launch(item.url); });
+    $('altBox').appendChild(b);
+  });
+
+  function toast(msg){
+    var old = document.querySelector('.toast');
+    if(old) old.parentNode.removeChild(old);
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 1800);
+  }
+
+  function copy(text){
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(
+        function(){ toast('已复制：' + text); },
+        function(){ legacyCopy(text); }
+      );
+    } else {
+      legacyCopy(text);
+    }
+  }
+  function legacyCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制：' + text); }
+    catch(e){ toast('复制失败，请长按下方地址手动复制'); }
+    document.body.removeChild(ta);
+  }
+
+  function launch(url){
+    current = url || MAIN;
+    hide('dialog');
+    hide('failBox');
+    if(inWeChat){
+      show('wxMask');
+      return;
+    }
+    var left = false;
+    function markLeft(){ left = true; }
+    document.addEventListener('visibilitychange', function(){
+      if(document.hidden) left = true;
+    });
+    window.addEventListener('pagehide', markLeft);
+
+    if(isAndroid && !inWork){
+      var fallback = encodeURIComponent(HOME);
+      var rest = current.replace(/^wxwork:\/\//, '');
+      window.location.href = 'intent://' + rest + '#Intent;scheme=wxwork;package=com.tencent.wework;S.browser_fallback_url=' + fallback + ';end';
+    } else {
+      window.location.href = current;
+    }
+    setTimeout(function(){
+      if(!left && !document.hidden) show('failBox');
+    }, 2600);
+  }
+
+  function show(id){ $(id).classList.remove('hidden'); }
+  function hide(id){ $(id).classList.add('hidden'); }
+
+  $('mainBtn').addEventListener('click', function(){ launch(MAIN); });
+  $('dlgOk').addEventListener('click', function(){
+    if(isDesktop){
+      copy(window.location.href);
+      hide('dialog');
+    } else {
+      launch(MAIN);
+    }
+  });
+  $('dlgCancel').addEventListener('click', function(){ hide('dialog'); });
+  $('wxClose').addEventListener('click', function(){ hide('wxMask'); });
+  $('wxMask').addEventListener('click', function(e){ if(e.target === this) hide('wxMask'); });
+  $('retryBtn').addEventListener('click', function(){ launch(current); });
+  $('copyBtn').addEventListener('click', function(){ copy(current); });
+  $('homeBtn').addEventListener('click', function(){ window.location.href = HOME; });
+  $('failClose').addEventListener('click', function(){ hide('failBox'); });
+
+  if(inWeChat){
+    show('wxMask');
+  } else if(isDesktop){
+    $('dlgTitle').textContent = '请在手机上打开';
+    $('dlgText').textContent = '这个入口只在手机端企业微信或手机浏览器里有效。可以复制页面地址，用手机打开。';
+    $('dlgOk').textContent = '复制页面地址';
+    show('dialog');
+  } else {
+    $('dlgTitle').textContent = inWork ? '跳转到企微打卡页？' : '打开企业微信打卡页';
+    $('dlgText').textContent = inWork
+      ? '即将离开当前应用，打开企业微信打卡页面。若没有跳转，可试页面里的备用入口。'
+      : '将唤起企业微信客户端并进入打卡页，请确保已安装并登录企业微信。';
+    show('dialog');
+  }
+})();
+</script>
+</body>
+</html>
