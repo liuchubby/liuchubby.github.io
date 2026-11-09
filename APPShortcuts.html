@@ -12,32 +12,125 @@
     </style>
     <link rel="stylesheet" href="styles.css">
     <!-- 引用外部 CSS 文件 -->
-    <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"
+          type="text/css">
     <!-- Font Awesome CSS -->
     <meta charset="utf-8">
-<!-- WB_WX_GUIDE_CSS_START -->
-<!-- 微信内「请在浏览器中打开」提示组件 -->
-<style>
-#wbWxMask{position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:0!important;z-index:2147483647!important;background:rgba(0,0,0,.8)!important;display:none!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;margin:0!important;padding:0!important;border:0!important;box-sizing:border-box!important;color:#fff!important;text-align:center!important;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif!important;overflow:hidden!important}
-#wbWxMask.wb-show{display:flex!important}
-#wbWxMask .wb-arrow{position:absolute!important;top:10px!important;right:22px!important;width:0!important;height:0!important;margin:0!important;padding:0!important;border-left:17px solid transparent!important;border-right:17px solid transparent!important;border-top:30px solid #fff!important;transform:rotate(30deg)!important}
-#wbWxMask .wb-tip{display:block!important;margin:96px 22px 0!important;padding:0!important;max-width:420px!important}
-#wbWxMask .wb-title{display:block!important;font-size:20px!important;font-weight:600!important;color:#fff!important;margin:0 0 12px!important;line-height:1.5!important}
-#wbWxMask .wb-line{display:block!important;font-size:15px!important;color:#fff!important;margin:0!important;line-height:1.9!important}
-#wbWxMask .wb-line b{color:#ffd666!important;font-weight:600!important}
-#wbWxMask .wb-btns{display:block!important;margin-top:26px!important}
-#wbWxMask .wb-btn{display:inline-block!important;margin:6px 5px 0!important;padding:10px 18px!important;border:1px solid rgba(255,255,255,.8)!important;border-radius:22px!important;background:transparent!important;color:#fff!important;font-size:14px!important;line-height:1.4!important;cursor:pointer!important;font-family:inherit!important;-webkit-tap-highlight-color:transparent!important}
-#wbWxMask .wb-toast{position:absolute!important;left:50%!important;bottom:44px!important;transform:translateX(-50%)!important;background:rgba(0,0,0,.85)!important;color:#fff!important;font-size:13px!important;padding:9px 16px!important;border-radius:20px!important;white-space:nowrap!important}
-</style>
-<!-- WB_WX_GUIDE_CSS_END -->
+    <!-- WB_WX_GUIDE_CSS_START -->
+    <!-- 微信内「请在浏览器中打开」提示组件 -->
+    <style>
+        #wbWxMask {
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            z-index: 2147483647 !important;
+            background: rgba(0, 0, 0, .8) !important;
+            display: none !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            box-sizing: border-box !important;
+            color: #fff !important;
+            text-align: center !important;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+            overflow: hidden !important
+        }
+
+        #wbWxMask.wb-show {
+            display: flex !important
+        }
+
+        #wbWxMask .wb-arrow {
+            position: absolute !important;
+            top: 10px !important;
+            right: 22px !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-left: 17px solid transparent !important;
+            border-right: 17px solid transparent !important;
+            border-top: 30px solid #fff !important;
+            transform: rotate(30deg) !important
+        }
+
+        #wbWxMask .wb-tip {
+            display: block !important;
+            margin: 96px 22px 0 !important;
+            padding: 0 !important;
+            max-width: 420px !important
+        }
+
+        #wbWxMask .wb-title {
+            display: block !important;
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            color: #fff !important;
+            margin: 0 0 12px !important;
+            line-height: 1.5 !important
+        }
+
+        #wbWxMask .wb-line {
+            display: block !important;
+            font-size: 15px !important;
+            color: #fff !important;
+            margin: 0 !important;
+            line-height: 1.9 !important
+        }
+
+        #wbWxMask .wb-line b {
+            color: #ffd666 !important;
+            font-weight: 600 !important
+        }
+
+        #wbWxMask .wb-btns {
+            display: block !important;
+            margin-top: 26px !important
+        }
+
+        #wbWxMask .wb-btn {
+            display: inline-block !important;
+            margin: 6px 5px 0 !important;
+            padding: 10px 18px !important;
+            border: 1px solid rgba(255, 255, 255, .8) !important;
+            border-radius: 22px !important;
+            background: transparent !important;
+            color: #fff !important;
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+            cursor: pointer !important;
+            font-family: inherit !important;
+            -webkit-tap-highlight-color: transparent !important
+        }
+
+        #wbWxMask .wb-toast {
+            position: absolute !important;
+            left: 50% !important;
+            bottom: 44px !important;
+            transform: translateX(-50%) !important;
+            background: rgba(0, 0, 0, .85) !important;
+            color: #fff !important;
+            font-size: 13px !important;
+            padding: 9px 16px !important;
+            border-radius: 20px !important;
+            white-space: nowrap !important
+        }
+    </style>
+    <!-- WB_WX_GUIDE_CSS_END -->
 </head>
 <body>
 <div class="container">
     <!-- 数字时钟 -->
     <div class="digital-clock">
-        <div class="time"> <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+        <div class="time"><span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
         </div>
-        <div class="calender"> <span class="month-name">Month</span>  <span class="day-num">00</span>, <span class="day-name">Day</span>
+        <div class="calender"><span class="month-name">Month</span> <span class="day-num">00</span>, <span
+                class="day-name">Day</span>
         </div>
     </div>
     <!-- 返回上一层按钮 -->
@@ -78,63 +171,81 @@
 <!-- WB_WX_GUIDE_HTML_START -->
 <!-- 微信内「请在浏览器中打开」提示组件 -->
 <div id="wbWxMask" aria-hidden="true">
-  <div class="wb-arrow"></div>
-  <div class="wb-tip">
-    <span class="wb-title">请在浏览器中打开</span>
-    <span class="wb-line">微信内置浏览器会拦截本页的应用跳转链接（URL Scheme）。</span>
-    <span class="wb-line">点击右上角 <b>···</b> → 选择「<b>在浏览器打开</b>」</span>
-    <span class="wb-line">用手机自带浏览器打开本页后，再点对应入口即可唤起 App。</span>
-    <span class="wb-btns">
+    <div class="wb-arrow"></div>
+    <div class="wb-tip">
+        <span class="wb-title">请在浏览器中打开</span>
+        <span class="wb-line">微信内置浏览器会拦截本页的应用跳转链接（URL Scheme）。</span>
+        <span class="wb-line">点击右上角 <b>···</b> → 选择「<b>在浏览器打开</b>」</span>
+        <span class="wb-line">用手机自带浏览器打开本页后，再点对应入口即可唤起 App。</span>
+        <span class="wb-btns">
       <button type="button" class="wb-btn" id="wbWxCopy">复制本页地址</button>
       <button type="button" class="wb-btn" id="wbWxClose">我知道了</button>
     </span>
-  </div>
+    </div>
 </div>
 <script>
-(function(){
-  var ua = navigator.userAgent || '';
-  var inWeChat = /MicroMessenger/i.test(ua) && !/wxwork/i.test(ua);
-  if(!inWeChat) return;
-  var mask = document.getElementById('wbWxMask');
-  if(!mask) return;
-  mask.classList.add('wb-show');
-  mask.setAttribute('aria-hidden', 'false');
-  function closeMask(){
-    mask.classList.remove('wb-show');
-    mask.setAttribute('aria-hidden', 'true');
-  }
-  function toast(msg){
-    var t = document.createElement('div');
-    t.className = 'wb-toast';
-    t.textContent = msg;
-    mask.appendChild(t);
-    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 1800);
-  }
-  function legacyCopy(text, ok, fail){
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    var done = false;
-    try { done = document.execCommand('copy'); } catch(e) { done = false; }
-    if(ta.parentNode) ta.parentNode.removeChild(ta);
-    if(done) ok(); else fail();
-  }
-  document.getElementById('wbWxClose').addEventListener('click', closeMask);
-  mask.addEventListener('click', function(e){ if(e.target === mask) closeMask(); });
-  document.getElementById('wbWxCopy').addEventListener('click', function(){
-    var url = window.location.href;
-    var ok = function(){ toast('已复制，粘贴到浏览器打开'); };
-    var fail = function(){ toast('复制失败，请长按地址栏复制'); };
-    if(navigator.clipboard && window.isSecureContext){
-      navigator.clipboard.writeText(url).then(ok, function(){ legacyCopy(url, ok, fail); });
-    } else {
-      legacyCopy(url, ok, fail);
-    }
-  });
-})();
+    (function () {
+        var ua = navigator.userAgent || '';
+        var inWeChat = /MicroMessenger/i.test(ua) && !/wxwork/i.test(ua);
+        if (!inWeChat) return;
+        var mask = document.getElementById('wbWxMask');
+        if (!mask) return;
+        mask.classList.add('wb-show');
+        mask.setAttribute('aria-hidden', 'false');
+
+        function closeMask() {
+            mask.classList.remove('wb-show');
+            mask.setAttribute('aria-hidden', 'true');
+        }
+
+        function toast(msg) {
+            var t = document.createElement('div');
+            t.className = 'wb-toast';
+            t.textContent = msg;
+            mask.appendChild(t);
+            setTimeout(function () {
+                if (t.parentNode) t.parentNode.removeChild(t);
+            }, 1800);
+        }
+
+        function legacyCopy(text, ok, fail) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            var done = false;
+            try {
+                done = document.execCommand('copy');
+            } catch (e) {
+                done = false;
+            }
+            if (ta.parentNode) ta.parentNode.removeChild(ta);
+            if (done) ok(); else fail();
+        }
+
+        document.getElementById('wbWxClose').addEventListener('click', closeMask);
+        mask.addEventListener('click', function (e) {
+            if (e.target === mask) closeMask();
+        });
+        document.getElementById('wbWxCopy').addEventListener('click', function () {
+            var url = window.location.href;
+            var ok = function () {
+                toast('已复制，粘贴到浏览器打开');
+            };
+            var fail = function () {
+                toast('复制失败，请长按地址栏复制');
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(ok, function () {
+                    legacyCopy(url, ok, fail);
+                });
+            } else {
+                legacyCopy(url, ok, fail);
+            }
+        });
+    })();
 </script>
 <!-- WB_WX_GUIDE_HTML_END -->
 </body>
